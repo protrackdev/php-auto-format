@@ -1,0 +1,25 @@
+name: Format
+on: push
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Composer Install
+        run: composer install
+      - name: Format
+        run: composer format
+      - name: Commit and Push
+        uses: stefanzweifel/git-auto-commit-action@v4.2.0
+        id: auto_commit_action
+        with:
+          commit_user_name: CI
+          commit_user_email: ci@protrack.dev
+          commit_author: CI <ci@protrack.dev>
+          commit_message: CI - Fix formatting
+      - name: Success
+        if: steps.auto_commit_action.outputs.changes_detected == 'false'
+        run: echo "Format check... PASS!"
+      - name: Fail
+        if: steps.auto_commit_action.outputs.changes_detected == 'true'
+        run: echo "Fixed formatting, and pushed changes." && exit 1
